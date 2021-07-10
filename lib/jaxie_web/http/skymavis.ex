@@ -1,15 +1,27 @@
 defmodule JaxieWeb.Http.Skymavis do
-  @url "https://lunacia.skymavis.com/game-api/clients"
+  alias JaxieWeb.Http.SkymavisApi
 
   def get_claimables(ronin_address) do
-    case HTTPoison.get(@url <> "/0x#{ronin_address}/items/1") do
-      {:error, _body} ->
-        {:error, %{message: "Error fetching data."}}
+    case parse_ronin_address(ronin_address) do
+      {:ok, address} ->
+        get_address_data(address)
 
-      {:ok, %{body: body}} ->
-        body = Jason.decode!(body, keys: :atoms)
-
-        %{claimable: body.claimable_total, total: body.total}
+      {:error, :invalid_address} ->
+        {:error, %{message: "Invalid address."}}
     end
   end
+
+  def get_address_data(address) do
+    case SkymavisApi.get("/clients/#{address}/items/1") do
+      {:ok, %{body: body}} ->
+        {:ok, body}
+
+      {:error, _body} ->
+        {:error, %{message: "Error fetching data."}}
+    end
+  end
+
+  defp parse_ronin_address("0x" <> _ = address), do: {:ok, address}
+  defp parse_ronin_address("ronin:" <> address), do: {:ok, "0x" <> address}
+  defp parse_ronin_address(_), do: {:error, :invalid_address}
 end
