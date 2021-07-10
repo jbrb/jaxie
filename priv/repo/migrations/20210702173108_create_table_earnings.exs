@@ -10,7 +10,5 @@ defmodule Jaxie.Repo.Migrations.CreateTableEarnings do
 
       timestamps()
     end
-
-
   end
 end

@@ -5,6 +5,7 @@ defmodule JaxieWeb.Http.Skymavis do
     case HTTPoison.get(@url <> "/0x#{ronin_address}/items/1") do
       {:error, _body} ->
         {:error, %{message: "Error fetching data."}}
+
       {:ok, %{body: body}} ->
         body = Jason.decode!(body, keys: :atoms)
 
